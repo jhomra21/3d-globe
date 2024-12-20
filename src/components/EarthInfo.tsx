@@ -1,4 +1,4 @@
-import { Component, createSignal, createEffect, For } from 'solid-js';
+import { Component, createSignal, createEffect, For, onMount, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
 interface EarthInfoProps {
@@ -27,6 +27,19 @@ const CityIcon: Component<{ city: string }> = (props) => {
 export const EarthInfo: Component<EarthInfoProps> = (props) => {
   const [isExpanded, setIsExpanded] = createSignal(true);
   const [timeData, setTimeData] = createSignal<Record<string, string>>({});
+  let cardRef: HTMLDivElement;
+
+  // Handle click outside
+  onMount(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cardRef && !cardRef.contains(event.target as Node)) {
+        props.onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  });
 
   // Auto-minimize after 10 seconds
   createEffect(() => {
@@ -77,25 +90,45 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
   return (
     <Portal>
       <div
+        ref={cardRef!}
         class="fixed right-8 bottom-24 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
         style={{
           'max-height': isExpanded() ? '400px' : '64px',
           width: isExpanded() ? '320px' : '200px',
           overflow: 'hidden'
         }}
-        onClick={() => setIsExpanded(!isExpanded())}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsExpanded(!isExpanded());
+        }}
       >
         <div class="px-5 py-4 space-y-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50"></div>
-            <span class="font-medium tracking-wide whitespace-nowrap">
-              {isExpanded() ? 'Earth Time Zones' : (
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">🌍</span>
-                  <span>Time Zones</span>
-                </div>
-              )}
-            </span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50"></div>
+              <span class="font-medium tracking-wide whitespace-nowrap">
+                {isExpanded() ? 'Earth Time Zones' : (
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">🌍</span>
+                    <span>Time Zones</span>
+                  </div>
+                )}
+              </span>
+            </div>
+            <Show when={isExpanded()}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onClose();
+                }}
+                class="text-white/60 hover:text-white transition-colors p-1"
+                aria-label="Close time zones"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </Show>
           </div>
 
           <div 

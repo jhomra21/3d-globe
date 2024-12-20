@@ -1099,8 +1099,8 @@ export const Globe: Component = () => {
             </div>
           </Show>
           <EarthInfo
-            show={true}
-            onClose={() => {}}
+            show={showEarthInfo()}
+            onClose={() => setShowEarthInfo(false)}
           />
         </Show>
         <Show when={issPosition()}>
