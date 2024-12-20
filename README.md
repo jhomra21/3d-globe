@@ -25,11 +25,11 @@ Welcome to the 3D Globe ISS Tracker! This project visualizes the International S
    ```
 3. Install dependencies:
    ```bash
-   npm install
+   bun install
    ```
 4. Start the development server:
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 ## Usage
