@@ -13,8 +13,6 @@ Welcome to the 3D Globe ISS Tracker! This project visualizes the International S
 
 ![3D Globe ISS Tracker](./public/3dGlobeIssTracker.png)
 
-*Note: To add a blurred border to the image, you can use an image editing tool to apply a blur effect around the edges.*
-
 ## Installation
 
 1. Clone the repository:
