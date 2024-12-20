@@ -43,13 +43,6 @@ Welcome to the 3D Globe ISS Tracker! This project visualizes the International S
 - **Three.js**: A powerful 3D graphics library.
 - **D3.js**: A JavaScript library for producing dynamic, interactive data visualizations.
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
-
-## License
-
-This project is licensed under the MIT License.
 
 ---
 
