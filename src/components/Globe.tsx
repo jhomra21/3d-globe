@@ -103,6 +103,28 @@ export const Globe: Component = () => {
 
   const createISSModel = () => {
     const group = new THREE.Group();
+    
+    // Increase the invisible click target
+    const clickTarget = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4), // Increased from typical 0.1-0.2
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide
+      })
+    );
+    group.add(clickTarget);
+
+    // Remove or comment out the orbit circle creation
+    // const orbitGeometry = new THREE.RingGeometry(0.3, 0.31, 32);
+    // const orbitMaterial = new THREE.MeshBasicMaterial({
+    //   color: COLORS.ORBIT_LINE,
+    //   side: THREE.DoubleSide,
+    //   transparent: true,
+    //   opacity: 0.5
+    // });
+    // const orbitCircle = new THREE.Mesh(orbitGeometry, orbitMaterial);
+    // group.add(orbitCircle);
 
     // Refined materials with better visibility
     const bodyMaterial = new THREE.MeshPhongMaterial({ 
@@ -510,10 +532,12 @@ export const Globe: Component = () => {
       const rect = containerRef.getBoundingClientRect();
       if (!rect || !sceneManager || !issMarker) return;
 
-      // Check if we clicked on the info card
+      // Check if we clicked on the info card or timezone panel
       const cardElement = containerRef.querySelector('.info-card');
-      if (cardElement && cardElement.contains(event.target as Node)) {
-        return; // Don't process globe clicks if we clicked the card
+      const timezonePanel = containerRef.querySelector('.timezone-panel');
+      if (cardElement?.contains(event.target as Node) || 
+          timezonePanel?.contains(event.target as Node)) {
+        return; // Don't process globe clicks if we clicked the card or timezone panel
       }
 
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -525,8 +549,10 @@ export const Globe: Component = () => {
       if (intersects.length > 0) {
         setIsCardExpanded(!isCardExpanded());
         setHoverPosition({ x: event.clientX, y: event.clientY });
-      } else if (!cardElement?.contains(event.target as Node)) {
+      } else {
+        // Close both cards when clicking on the globe
         setIsCardExpanded(false);
+        setShowEarthInfo(false);
       }
     };
 
@@ -542,15 +568,20 @@ export const Globe: Component = () => {
       }
     };
 
-    // Add click handler to the document to close card when clicking outside
+    // Add click handler to the document to close cards when clicking outside
     const onDocumentClick = (event: MouseEvent) => {
       const cardElement = containerRef.querySelector('.info-card');
+      const timezonePanel = containerRef.querySelector('.timezone-panel');
+      
+      // Only close cards if we clicked outside both cards and not on the ISS
       if (!cardElement?.contains(event.target as Node) && 
+          !timezonePanel?.contains(event.target as Node) &&
           !issMarker?.children.some(child => {
             const intersects = raycaster.intersectObject(child, true);
             return intersects.length > 0;
           })) {
         setIsCardExpanded(false);
+        setShowEarthInfo(false);
       }
     };
 

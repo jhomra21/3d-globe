@@ -1,6 +1,9 @@
 import { ISSPosition } from '../types/iss';
 
-const ISS_API_URL = '/api/iss';
+const IS_DEV = import.meta.env.DEV;
+const ISS_API_URL = IS_DEV 
+  ? 'http://api.open-notify.org/iss-now.json'
+  : '/api/iss';
 
 export class ISSService {
   private static instance: ISSService;

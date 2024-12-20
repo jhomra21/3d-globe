@@ -32,7 +32,8 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
   // Handle click outside
   onMount(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (cardRef && !cardRef.contains(event.target as Node)) {
+      if (cardRef && !cardRef.contains(event.target as Node) && isExpanded()) {
+        setIsExpanded(false);
         props.onClose();
       }
     };
@@ -91,15 +92,17 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
     <Portal>
       <div
         ref={cardRef!}
-        class="fixed right-8 bottom-24 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
+        class="timezone-panel fixed right-8 bottom-24 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
         style={{
           'max-height': isExpanded() ? '400px' : '64px',
           width: isExpanded() ? '320px' : '200px',
           overflow: 'hidden'
         }}
         onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(!isExpanded());
+          if (!isExpanded()) {
+            e.stopPropagation();
+            setIsExpanded(true);
+          }
         }}
       >
         <div class="px-5 py-4 space-y-3">
@@ -119,6 +122,7 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  setIsExpanded(false);
                   props.onClose();
                 }}
                 class="text-white/60 hover:text-white transition-colors p-1"
