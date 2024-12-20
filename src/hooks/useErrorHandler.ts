@@ -15,7 +15,6 @@ export function useErrorHandler() {
     if (error()) {
       setHasError(true);
       // You could add error reporting service integration here
-      console.error('Error occurred:', error());
     } else {
       setHasError(false);
     }

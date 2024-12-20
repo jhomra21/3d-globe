@@ -27,13 +27,11 @@ export class LoadingManager {
     this.manager = new THREE.LoadingManager(
       // onLoad
       () => {
-        console.log('Loading complete');
         this.setIsLoading(false);
         this.setError(null);
       },
       // onProgress
       (url, itemsLoaded, itemsTotal) => {
-        console.log(`Loading file: ${url} (${itemsLoaded}/${itemsTotal})`);
         this.itemsLoaded = itemsLoaded;
         this.itemsTotal = itemsTotal;
         const progress = itemsTotal > 0 ? (itemsLoaded / itemsTotal) * 100 : 0;
@@ -41,7 +39,6 @@ export class LoadingManager {
       },
       // onError
       (url) => {
-        console.error(`Error loading ${url}`);
         this.setError(`Failed to load ${url}`);
         this.setIsLoading(false);
       }
@@ -65,7 +62,6 @@ export class LoadingManager {
   }
 
   public startLoading(): void {
-    console.log('Starting loading process');
     this.itemsLoaded = 0;
     this.itemsTotal = 0;
     this.setIsLoading(true);
@@ -74,13 +70,11 @@ export class LoadingManager {
   }
 
   public setLoadingError(message: string): void {
-    console.error('Loading error:', message);
     this.setError(message);
     this.setIsLoading(false);
   }
 
   public forceComplete(): void {
-    console.log('Force completing loading');
     this.setIsLoading(false);
     this.setError(null);
     this.setProgress(100);

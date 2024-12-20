@@ -92,10 +92,10 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
     <Portal>
       <div
         ref={cardRef!}
-        class="timezone-panel fixed right-8 bottom-24 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
+        class="timezone-panel fixed md:right-8 right-4 md:bottom-24 bottom-20 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
         style={{
-          'max-height': isExpanded() ? '400px' : '64px',
-          width: isExpanded() ? '320px' : '200px',
+          'max-height': isExpanded() ? 'min(400px, 70vh)' : '64px',
+          width: isExpanded() ? 'min(320px, calc(100vw - 32px))' : 'min(200px, calc(100vw - 32px))',
           overflow: 'hidden'
         }}
         onClick={(e) => {
@@ -105,14 +105,14 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
           }
         }}
       >
-        <div class="px-5 py-4 space-y-3">
+        <div class="px-4 md:px-5 py-4 space-y-3">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50"></div>
-              <span class="font-medium tracking-wide whitespace-nowrap">
+              <span class="font-medium tracking-wide whitespace-nowrap text-sm md:text-base">
                 {isExpanded() ? 'Earth Time Zones' : (
                   <div class="flex items-center gap-2">
-                    <span class="text-lg">🌍</span>
+                    <span class="text-base md:text-lg">🌍</span>
                     <span>Time Zones</span>
                   </div>
                 )}
@@ -128,7 +128,7 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
                 class="text-white/60 hover:text-white transition-colors p-1"
                 aria-label="Close time zones"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -147,9 +147,9 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
                 <div class="flex items-center justify-between p-1.5 group cursor-default">
                   <div class="flex items-center gap-2">
                     <CityIcon city={city} />
-                    <span class="text-sm text-white/80">{city}</span>
+                    <span class="text-xs md:text-sm text-white/80">{city}</span>
                   </div>
-                  <span class="font-mono text-sm tabular-nums text-white/80">{time}</span>
+                  <span class="font-mono text-xs md:text-sm tabular-nums text-white/80">{time}</span>
                 </div>
               )}
             </For>
