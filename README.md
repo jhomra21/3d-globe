@@ -1,6 +1,7 @@
 # 3D Globe ISS Tracker
 
-[!TIP](https://3d-globe-iss-tracker.pages.dev/)
+>[!TIP]
+>Check out the live demo [here](https://3d-globe-iss-tracker.pages.dev/)
 
 Welcome to the 3D Globe ISS Tracker! This project visualizes the International Space Station's (ISS) position in real-time on a 3D globe, providing a stunning and interactive experience.
 
