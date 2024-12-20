@@ -1,0 +1,26 @@
+{
+  "name": "3d-globe",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.3",
+    "three": "^0.171.0",
+    "@types/three": "^0.171.0",
+    "d3": "^7.8.5",
+    "@types/d3": "^7.4.3"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-solid": "^2.8.0",
+    "typescript": "^5.0.0",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.17"
+  }
+} 
