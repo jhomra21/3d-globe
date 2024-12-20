@@ -17,7 +17,7 @@ Welcome to the 3D Globe ISS Tracker! This project visualizes the International S
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/3d-globe-iss-tracker.git
+   git clone https://github.com/jhomra21/3d-globe-iss-tracker.git
    ```
 2. Navigate to the project directory:
    ```bash
