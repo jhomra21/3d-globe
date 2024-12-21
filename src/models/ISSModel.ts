@@ -96,7 +96,7 @@ export class ISSModel {
     
     // Larger invisible click target for better mobile interaction
     const clickTarget = new THREE.Mesh(
-      new THREE.SphereGeometry(0.8),
+      new THREE.SphereGeometry(1.2),
       new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0,

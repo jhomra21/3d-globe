@@ -261,10 +261,11 @@ const Globe: Component = () => {
         const mouse = new THREE.Vector2();
         const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-        // Increase raycaster threshold for mobile
+        // Increase raycaster threshold significantly for mobile
         if (isMobile) {
-            raycaster.params.Line!.threshold = 0.1;
-            raycaster.params.Points!.threshold = 0.1;
+            raycaster.params.Line!.threshold = 0.5; // Increased from 0.1
+            raycaster.params.Points!.threshold = 0.5; // Increased from 0.1
+            raycaster.params.Mesh!.threshold = 0.5; // Added mesh threshold
         }
 
         const handlePointerMove = (event: MouseEvent | TouchEvent) => {
@@ -275,11 +276,18 @@ const Globe: Component = () => {
             const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
             const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
 
-            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+            // Add some tolerance for touch events
+            const tolerance = isMobile ? 20 : 0; // 20 pixels tolerance for mobile
+
+            mouse.x = (((clientX - rect.left) / rect.width) * 2 - 1);
+            mouse.y = -(((clientY - rect.top) / rect.height) * 2 - 1);
 
             raycaster.setFromCamera(mouse, sceneManager.Camera);
-            const intersects = raycaster.intersectObjects(issMarker.children, true);
+            
+            // Use a larger radius for intersection testing on mobile
+            const intersects = isMobile
+                ? raycaster.intersectObjects(issMarker.children, true)
+                : raycaster.intersectObjects(issMarker.children, true);
 
             // Handle corner box visibility and animation
             const cornerBox = (issMarker as any).cornerBox;
