@@ -44,10 +44,14 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
 
   // Auto-minimize after 10 seconds
   createEffect(() => {
-    if (isExpanded()) {
-      const timer = setTimeout(() => setIsExpanded(false), 10000);
-      return () => clearTimeout(timer);
+    let timer: ReturnType<typeof setTimeout>;
+    if (props.show && isExpanded()) {
+      timer = setTimeout(() => {
+        setIsExpanded(false);
+        props.onClose();
+      }, 10000);
     }
+    return () => clearTimeout(timer);
   });
 
   // Update times every minute
@@ -92,7 +96,7 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
     <Portal>
       <div
         ref={cardRef!}
-        class="timezone-panel fixed md:right-8 right-4 md:bottom-24 bottom-20 bg-[rgba(20,20,20,0.95)] backdrop-blur-2xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
+        class="timezone-panel fixed md:right-8 right-4 md:bottom-24 bottom-20 bg-[rgba(20,20,20,0.66)] backdrop-blur-xl text-white rounded-xl border border-white/10 shadow-2xl transition-all duration-500 ease-in-out select-none cursor-pointer z-50"
         style={{
           'max-height': isExpanded() ? 'min(400px, 70vh)' : '64px',
           width: isExpanded() ? 'min(320px, calc(100vw - 32px))' : 'min(200px, calc(100vw - 32px))',
@@ -125,11 +129,11 @@ export const EarthInfo: Component<EarthInfoProps> = (props) => {
                   setIsExpanded(false);
                   props.onClose();
                 }}
-                class="text-white/60 hover:text-white transition-colors p-1"
+                class="text-red-500 hover:text-red-400 transition-colors absolute top-3 right-3 flex items-center justify-center"
                 aria-label="Close time zones"
               >
-                <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </Show>

@@ -259,13 +259,24 @@ const Globe: Component = () => {
 
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-        const onMouseMove = (event: MouseEvent) => {
+        // Increase raycaster threshold for mobile
+        if (isMobile) {
+            raycaster.params.Line!.threshold = 0.1;
+            raycaster.params.Points!.threshold = 0.1;
+        }
+
+        const handlePointerMove = (event: MouseEvent | TouchEvent) => {
             const rect = containerRef.getBoundingClientRect();
             if (!rect || !sceneManager || !issMarker) return;
 
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            // Get coordinates for both mouse and touch events
+            const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+            const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+
+            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, sceneManager.Camera);
             const intersects = raycaster.intersectObjects(issMarker.children, true);
@@ -273,11 +284,12 @@ const Globe: Component = () => {
             // Handle corner box visibility and animation
             const cornerBox = (issMarker as any).cornerBox;
             if (intersects.length > 0) {
-                setHoverPosition({ x: event.clientX, y: event.clientY });
-                containerRef.style.cursor = 'pointer';
+                setHoverPosition({ x: clientX, y: clientY });
+                if (!isMobile) {
+                    containerRef.style.cursor = 'pointer';
+                }
                 if (cornerBox) {
                     cornerBox.visible = true;
-                    // Enhanced hover effects
                     cornerBox.traverse((child: THREE.Object3D) => {
                         if (child instanceof THREE.Line) {
                             const material = child.material as THREE.LineBasicMaterial;
@@ -285,7 +297,6 @@ const Globe: Component = () => {
                         }
                     });
 
-                    // Add slight hover animation to ISS model
                     issMarker.scale.setScalar(1.1);
                     issMarker.children.forEach((child: THREE.Object3D) => {
                         if (child instanceof THREE.Mesh) {
@@ -296,9 +307,10 @@ const Globe: Component = () => {
                     });
                 }
             } else if (!isCardExpanded()) {
-                // Only hide hover card if it's not expanded
                 setHoverPosition(null);
-                containerRef.style.cursor = 'grab';
+                if (!isMobile) {
+                    containerRef.style.cursor = 'grab';
+                }
                 if (cornerBox) {
                     cornerBox.traverse((child: THREE.Object3D) => {
                         if (child instanceof THREE.Line) {
@@ -319,52 +331,53 @@ const Globe: Component = () => {
             }
         };
 
-        const onClick = (event: MouseEvent) => {
+        const handlePointerUp = (event: MouseEvent | TouchEvent) => {
             const rect = containerRef.getBoundingClientRect();
             if (!rect || !sceneManager || !issMarker) return;
+
+            // Prevent default touch behavior
+            if ('touches' in event) {
+                event.preventDefault();
+            }
+
+            // Get coordinates for both mouse and touch events
+            const clientX = 'changedTouches' in event ? event.changedTouches[0].clientX : event.clientX;
+            const clientY = 'changedTouches' in event ? event.changedTouches[0].clientY : event.clientY;
 
             // Check if we clicked on the info card or timezone panel
             const cardElement = containerRef.querySelector('.info-card');
             const timezonePanel = containerRef.querySelector('.timezone-panel');
             if (cardElement?.contains(event.target as Node) ||
                 timezonePanel?.contains(event.target as Node)) {
-                return; // Don't process globe clicks if we clicked the card or timezone panel
+                return;
             }
 
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, sceneManager.Camera);
             const intersects = raycaster.intersectObjects([issMarker], true);
 
             if (intersects.length > 0) {
                 setIsCardExpanded(!isCardExpanded());
-                setHoverPosition({ x: event.clientX, y: event.clientY });
+                setHoverPosition({ x: clientX, y: clientY });
             } else {
-                // Close both cards when clicking on the globe
                 setIsCardExpanded(false);
                 setShowEarthInfo(false);
             }
         };
 
-        const onMouseDown = () => {
-            if (containerRef && !isCardExpanded()) {
-                containerRef.style.cursor = 'grabbing';
-            }
-        };
-
-        const onMouseUp = () => {
-            if (containerRef && !isCardExpanded()) {
-                containerRef.style.cursor = 'grab';
-            }
-        };
+        // Add event listeners for both mouse and touch events
+        containerRef.addEventListener('mousemove', handlePointerMove);
+        containerRef.addEventListener('touchmove', handlePointerMove, { passive: false });
+        containerRef.addEventListener('mouseup', handlePointerUp);
+        containerRef.addEventListener('touchend', handlePointerUp, { passive: false });
 
         // Add click handler to the document to close cards when clicking outside
-        const onDocumentClick = (event: MouseEvent) => {
+        const onDocumentClick = (event: MouseEvent | TouchEvent) => {
             const cardElement = containerRef.querySelector('.info-card');
             const timezonePanel = containerRef.querySelector('.timezone-panel');
 
-            // Only close cards if we clicked outside both cards and not on the ISS
             if (!cardElement?.contains(event.target as Node) &&
                 !timezonePanel?.contains(event.target as Node) &&
                 !issMarker?.children.some(child => {
@@ -376,18 +389,16 @@ const Globe: Component = () => {
             }
         };
 
-        containerRef.addEventListener('mousemove', onMouseMove);
-        containerRef.addEventListener('click', onClick);
-        containerRef.addEventListener('mousedown', onMouseDown);
-        containerRef.addEventListener('mouseup', onMouseUp);
         document.addEventListener('click', onDocumentClick);
+        document.addEventListener('touchend', onDocumentClick);
 
         return () => {
-            containerRef.removeEventListener('mousemove', onMouseMove);
-            containerRef.removeEventListener('click', onClick);
-            containerRef.removeEventListener('mousedown', onMouseDown);
-            containerRef.removeEventListener('mouseup', onMouseUp);
+            containerRef.removeEventListener('mousemove', handlePointerMove);
+            containerRef.removeEventListener('touchmove', handlePointerMove);
+            containerRef.removeEventListener('mouseup', handlePointerUp);
+            containerRef.removeEventListener('touchend', handlePointerUp);
             document.removeEventListener('click', onDocumentClick);
+            document.removeEventListener('touchend', onDocumentClick);
         };
     };
 
@@ -472,6 +483,8 @@ const Globe: Component = () => {
 
     let issRotation = 0;
     const rotationSpeed = 0.01;
+    let glowPulse = 0;
+    const glowSpeed = 0.03;
 
     const loadTextures = async (manager: SceneManager) => {
         const textureUrls = {
@@ -700,6 +713,25 @@ const Globe: Component = () => {
                 if (issMarker) {
                     issRotation += rotationSpeed;
                     issMarker.rotation.y = issRotation;
+
+                    // Animate glow effect
+                    glowPulse += glowSpeed;
+                    const glowOpacity = 0.3 + Math.sin(glowPulse) * 0.2;
+                    const ringOpacity = 0.15 + Math.sin(glowPulse) * 0.1;
+
+                    // Update glow materials
+                    issMarker.children.forEach((child) => {
+                        if (child instanceof THREE.Mesh) {
+                            const material = child.material as THREE.MeshBasicMaterial;
+                            if (material.opacity !== undefined) {
+                                if (child.geometry instanceof THREE.CircleGeometry) {
+                                    material.opacity = glowOpacity;
+                                } else if (child.geometry instanceof THREE.RingGeometry) {
+                                    material.opacity = ringOpacity;
+                                }
+                            }
+                        }
+                    });
                 }
 
                 if (stars) {
@@ -752,26 +784,6 @@ const Globe: Component = () => {
     });
 
     onCleanup(cleanupResources);
-
-    // Add particle trail behind ISS
-    const createISSParticles = () => {
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particleCount = 100;
-        const positions = new Float32Array(particleCount * 3);
-        const alphas = new Float32Array(particleCount);
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particlesGeometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-
-        const particlesMaterial = new THREE.PointsMaterial({
-            color: 0x4facfe,
-            size: 0.05,
-            transparent: true,
-            blending: THREE.AdditiveBlending
-        });
-
-        return new THREE.Points(particlesGeometry, particlesMaterial);
-    };
 
     return (
         <ErrorBoundary>
@@ -889,7 +901,7 @@ const Globe: Component = () => {
                     />
                 </Show>
                 <Show when={issPosition()}>
-                    <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-[rgba(28,28,28,0.8)] backdrop-blur-xl text-white px-4 py-2 rounded-lg text-xs md:text-sm font-medium border border-white/10 shadow-xl select-none pointer-events-none z-40">
+                    <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-[rgba(28,28,28,0.66)] backdrop-blur-xl text-white px-4 py-2 rounded-lg text-xs md:text-sm font-medium border border-white/10 shadow-xl select-none pointer-events-none z-40">
                         ISS is currently above: {currentCountry()}
                     </div>
                 </Show>

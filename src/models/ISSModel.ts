@@ -94,9 +94,9 @@ export class ISSModel {
   public static create(): THREE.Group {
     const group = new THREE.Group();
     
-    // Invisible click target
+    // Larger invisible click target for better mobile interaction
     const clickTarget = new THREE.Mesh(
-      new THREE.SphereGeometry(0.4),
+      new THREE.SphereGeometry(0.8),
       new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0,
@@ -104,6 +104,34 @@ export class ISSModel {
       })
     );
     group.add(clickTarget);
+
+    // Add glow effect
+    const glowGeometry = new THREE.CircleGeometry(0.4, 32);
+    const glowMaterial = new THREE.MeshBasicMaterial({
+      color: 0x4facfe,
+      transparent: true,
+      opacity: 0.4,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+    });
+    const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+    glowMesh.position.set(0, -0.1, 0); // Slightly below the ISS
+    glowMesh.lookAt(new THREE.Vector3(0, 1, 0));
+    group.add(glowMesh);
+
+    // Add outer glow ring
+    const ringGeometry = new THREE.RingGeometry(0.4, 0.6, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: 0x4facfe,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+    });
+    const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+    ringMesh.position.copy(glowMesh.position);
+    ringMesh.lookAt(new THREE.Vector3(0, 1, 0));
+    group.add(ringMesh);
 
     const bodyMaterial = this.createBodyMaterial();
 
